@@ -10,7 +10,8 @@ const Shell = imports.gi.Shell;
 const Clutter = imports.gi.Clutter
 
 const VOLTAGE_NOW = "/sys/class/power_supply/BAT0/voltage_now";
-const CURRENT_NOW = "/sys/class/power_supply/BAT0/current_now";
+//const CURRENT_NOW = "/sys/class/power_supply/BAT0/current_now";
+const POWER_NOW = "/sys/class/power_supply/BAT0/power_now";
 const STATUS = "/sys/class/power_supply/BAT0/status";
 const WINDOW_SIZE = 100;
 
@@ -39,13 +40,13 @@ var WattMeter = class WattMeter extends PanelMenu.Button {
             this.powerWindows = [];
             return true;
         }
-        const current = getCurrent();
+        //const current = getCurrent();
         const voltage = getVoltage();
-        if (current < 0 || voltage < 0) {
+        if (voltage < 0) {
             this.powerWindows = [];
             return true;
         }
-        const power = current * voltage;
+        const power = getPower();
         this.powerWindows.push(power);
         if (this.powerWindows.length >= WINDOW_SIZE) {
             this.powerWindows.shift();
@@ -97,6 +98,11 @@ function getStatus() {
 function getVoltage() {
     const voltage = parseFloat(readFileSafely(VOLTAGE_NOW, -1));
     return voltage === -1 ? voltage : voltage / 1000000;
+}
+
+function getPower() {
+    const power = parseFloat(readFileSafely(POWER_NOW, -1));
+    return power == -1 ? power : power / 1000000;
 }
 
 function getCurrent() {
